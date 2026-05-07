@@ -53,7 +53,7 @@ User Question ──► Embed Query ──► Similarity Search (Top-5) ──�
 | **RAG Framework** | LangChain, LangChain-HuggingFace |
 | **Embeddings** | Sentence Transformers (`all-MiniLM-L6-v2`) |
 | **Vector Database** | ChromaDB (persistent, local) |
-| **LLM** | Ollama + TinyLLaMA 1.1B / Mistral 7B |
+| **LLM** | Ollama + TinyLLaMA 1.1B |
 | **PDF Parsing** | PyPDF |
 | **ArXiv Fetching** | arxiv Python library |
 | **Frontend** | React 18, Vite |
