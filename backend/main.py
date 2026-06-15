@@ -6,6 +6,7 @@ from langchain_core.prompts import PromptTemplate
 import ollama as ollama_client
 
 from ingest import (
+    reset_vectorstore_cache,
     get_embeddings,
     get_vectorstore,
     ingest_pdf_bytes,
@@ -108,8 +109,8 @@ async def query(request: QueryRequest):
 @app.delete("/reset")
 def reset_vectorstore():
     import shutil, os, gc
+    reset_vectorstore_cache()
     try:
-        # Force close the chromadb connection
         from chromadb import PersistentClient
         client = PersistentClient(path=CHROMA_PATH)
         client.reset()

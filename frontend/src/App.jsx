@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Upload, Send, BookOpen, Trash2, Plus, FileText, Loader2, X, ChevronDown } from "lucide-react";
 
-const API = "https://dilshad002-scholarmind-backend.hf.space";
+const API = "http://localhost:8000";
 
 const styles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -665,7 +665,7 @@ export default function App() {
             <div className="header-title">Ask anything about your research papers</div>
             <div className="status-text">
               <span className="status-dot" />
-              Meta-Llama-3 · HF
+              TinyLlama · Ollama
             </div>
           </div>
 

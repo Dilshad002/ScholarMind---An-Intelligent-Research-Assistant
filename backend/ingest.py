@@ -9,14 +9,23 @@ from langchain_huggingface import HuggingFaceEmbeddings
 CHROMA_PATH = "./chroma_db"
 EMBED_MODEL = "all-MiniLM-L6-v2"
 
+_vectorstore = None
+
 def get_embeddings():
     return HuggingFaceEmbeddings(model_name=EMBED_MODEL)
 
 def get_vectorstore():
-    return Chroma(
-        persist_directory=CHROMA_PATH,
-        embedding_function=get_embeddings()
-    )
+    global _vectorstore
+    if _vectorstore is None:
+        _vectorstore = Chroma(
+            persist_directory=CHROMA_PATH,
+            embedding_function=get_embeddings()
+        )
+    return _vectorstore
+
+def reset_vectorstore_cache():
+    global _vectorstore
+    _vectorstore = None
 
 def extract_text_from_pdf_bytes(pdf_bytes: bytes) -> str:
     import io
@@ -46,20 +55,24 @@ def ingest_pdf_bytes(pdf_bytes: bytes, filename: str):
     return len(chunks)
 
 def ingest_arxiv_paper(arxiv_id: str):
-    search = arxiv.Search(id_list=[arxiv_id])
-    paper = next(search.results())
-    
+    client = arxiv.Client()
+    search = arxiv.Search(id_list=[arxiv_id.strip()])
+    results = list(client.results(search))
+    if not results:
+        raise ValueError(f"No paper found for ArXiv ID: {arxiv_id}")
+    paper = results[0]
+
     pdf_url = paper.pdf_url
-    response = requests.get(pdf_url)
+    response = requests.get(pdf_url, headers={"User-Agent": "Mozilla/5.0"})
     pdf_bytes = response.content
-    
+
     text = extract_text_from_pdf_bytes(pdf_bytes)
     source = f"[ArXiv:{arxiv_id}] {paper.title}"
     chunks = chunk_text(text, source=source)
-    
+
     vectorstore = get_vectorstore()
     vectorstore.add_documents(chunks)
-    
+
     return {
         "title": paper.title,
         "authors": [a.name for a in paper.authors],
